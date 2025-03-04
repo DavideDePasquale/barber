@@ -6,6 +6,8 @@ import com.barber.payload.UtenteDTO;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Data
 @Component
 public class UtenteMapperDTO {
@@ -13,6 +15,7 @@ public class UtenteMapperDTO {
 
     public UtenteDTO to_dto(Utente entity){
         UtenteDTO dto = new UtenteDTO();
+        dto.setId(entity.getId());
         dto.setNome(entity.getNome());
         dto.setCognome(entity.getCognome());
         dto.setEmail(entity.getEmail());
@@ -31,9 +34,10 @@ public class UtenteMapperDTO {
         entity.setEmail(dto.getEmail());
         entity.setUsername(dto.getUsername());
         entity.setPassword(dto.getPassword());
-        ERuolo ruolo = ERuolo.valueOf(dto.getTipoRuolo().toUpperCase());
-        entity.setAvatar(dto.getAvatar());
+        String tipoRuolo = Optional.ofNullable(dto.getTipoRuolo()).orElse("USER"); // se c'è il ruolo, okay.. sennò di default è user!
+        ERuolo ruolo = ERuolo.valueOf(tipoRuolo.toUpperCase());
         entity.setTipoRuolo(ruolo);
+        entity.setAvatar(dto.getAvatar());
         return entity;
     }
 

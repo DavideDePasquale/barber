@@ -12,6 +12,7 @@ import lombok.Data;
 @Data
 public class UtenteDTO {
 
+    private Long id;
     @NotBlank(message = "⚠️ Il campo ' nome ' è obbligatorio! ⚠️")
     private String nome;
 

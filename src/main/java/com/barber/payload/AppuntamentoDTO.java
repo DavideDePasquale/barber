@@ -14,6 +14,7 @@ import java.time.LocalDate;
 public class AppuntamentoDTO {
 
 
+    private Long id;
     private LocalDate data;
 
     private Time oraappuntamento;

@@ -20,6 +20,7 @@ public class AppuntamentoMapperDTO {
 
     public AppuntamentoDTO to_dto(Appuntamento entity){
         AppuntamentoDTO dto = new AppuntamentoDTO();
+        dto.setId(entity.getId());
         dto.setData(entity.getData());
         dto.setOraappuntamento(entity.getOraappuntamento());
         Long idtrattamento = entity.getTrattamento().getId();

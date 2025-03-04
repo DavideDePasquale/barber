@@ -29,17 +29,19 @@ public class UtenteController {
         return ResponseEntity.ok(utenteService.getUtenteById(id));
     }
     @PutMapping("/{id}")
-    public ResponseEntity<UtenteDTO> updateUtente(@PathVariable Long id, UtenteDTO utenteDTO){
+    public ResponseEntity<UtenteDTO> updateUtente(@PathVariable Long id, @RequestBody UtenteDTO utenteDTO){
         return ResponseEntity.ok(utenteService.updateUtente(id,utenteDTO));
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUtente(@PathVariable Long id){
+        utenteService.deleteUtente(id);
         return ResponseEntity.noContent().build();
     }
     @PostMapping(value = "/avatar",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UtenteDTO> createUtenteWithAvatar(@RequestPart("utente") UtenteDTO utenteDTO, @RequestPart("file")MultipartFile file){
         try {
             UtenteDTO savedUser = utenteService.uploadImage(utenteDTO,file);
+
             return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);

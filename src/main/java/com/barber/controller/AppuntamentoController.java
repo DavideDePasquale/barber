@@ -46,7 +46,7 @@ public class AppuntamentoController {
         return ResponseEntity.noContent().build();
     }
     @PutMapping("/{id}")
-    public ResponseEntity<AppuntamentoDTO> updateAppuntamento(@PathVariable Long id, AppuntamentoDTO appuntamentoDTO){
+    public ResponseEntity<AppuntamentoDTO> updateAppuntamento(@PathVariable Long id, @RequestBody AppuntamentoDTO appuntamentoDTO){
        return ResponseEntity.ok(appuntamentoService.updateAppuntamento(id,appuntamentoDTO));
     }
 

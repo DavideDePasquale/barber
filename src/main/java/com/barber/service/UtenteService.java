@@ -28,8 +28,15 @@ public class UtenteService {
 
     // CRUD BASE
     public UtenteDTO registerUtente(UtenteDTO utenteDTO){
-        if (utenteRepository.existsByEmail(utenteDTO.getUsername())){
+        if (utenteRepository.existsByEmail(utenteDTO.getEmail())){
             throw new RuntimeException("⚠️ Email già in uso! ⚠️");
+        }
+        if (utenteRepository.existsByUsername(utenteDTO.getUsername())){
+            throw new RuntimeException("⚠️ Username già in uso! ⚠️");
+        }
+        if (utenteDTO.getTipoRuolo() == null){
+            utenteDTO.setTipoRuolo("USER");
+
         }
         Utente utente = utenteMapperDTO.to_entity(utenteDTO);
         utente = utenteRepository.save(utente);
@@ -52,7 +59,8 @@ public class UtenteService {
 
     // x la modifica di un utente
     public UtenteDTO updateUtente(Long id, UtenteDTO utenteDTO){
-        Utente utente = utenteRepository.findById(id).orElseThrow(()-> new RuntimeException("⚠️ Utente non trovato! ⚠️"));
+        Utente utente =
+                utenteRepository.findById(id).orElseThrow(()-> new RuntimeException("⚠️ Utente non trovato! ⚠️"));
         utente = utenteMapperDTO.updateUtente(utenteDTO,utente);
         utente = utenteRepository.save(utente);
         return utenteMapperDTO.to_dto(utente);
