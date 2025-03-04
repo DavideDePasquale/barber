@@ -1,7 +1,10 @@
 package com.barber.payload.mapper;
 
 import com.barber.model.Appuntamento;
+import com.barber.model.Trattamento;
+import com.barber.model.Utente;
 import com.barber.payload.AppuntamentoDTO;
+import com.barber.payload.UtenteDTO;
 import com.barber.repository.TrattamentoRepository;
 import com.barber.repository.UtenteRepository;
 import lombok.Data;
@@ -34,5 +37,23 @@ public class AppuntamentoMapperDTO {
         entity.setTrattamento(trattamentoRepository.findById(dto.getId_trattamento()).orElseThrow(()-> new RuntimeException("⚠️ Trattaamento non trovato ⚠️")));
         entity.setUtente(utenteRepository.findById(dto.getId_utente()).orElseThrow(()-> new RuntimeException("⚠️ Utente non trovato ⚠️")));
         return entity;
+    }
+
+    public Appuntamento updateAppuntamento(Appuntamento appuntamento, AppuntamentoDTO appuntamentoDTO){
+        if (appuntamentoDTO.getData() != null){
+            appuntamento.setData(appuntamentoDTO.getData());
+        }
+        if (appuntamentoDTO.getOraappuntamento() != null){
+            appuntamento.setOraappuntamento(appuntamentoDTO.getOraappuntamento());
+        }
+        if (appuntamentoDTO.getId_trattamento() != null){
+            Trattamento trattamento = trattamentoRepository.findById(appuntamentoDTO.getId_trattamento()).orElseThrow(()-> new RuntimeException("❌ Trattamento non trovato! ❌"));
+            appuntamento.setTrattamento(trattamento);
+        }
+        if (appuntamentoDTO.getId_utente() != null){
+            Utente utente = utenteRepository.findById(appuntamentoDTO.getId_utente()).orElseThrow(()-> new RuntimeException("❌ Utente non trovato! ❌"));
+            appuntamento.setUtente(utente);
+        }
+        return appuntamento;
     }
 }
