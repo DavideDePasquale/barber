@@ -4,6 +4,8 @@ import com.barber.enumeration.ERuolo;
 import com.barber.model.Utente;
 import com.barber.payload.UtenteDTO;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -11,6 +13,7 @@ import java.util.Optional;
 @Data
 @Component
 public class UtenteMapperDTO {
+    @Autowired PasswordEncoder passwordEncoder;
 
 
     public UtenteDTO to_dto(Utente entity){
@@ -20,7 +23,7 @@ public class UtenteMapperDTO {
         dto.setCognome(entity.getCognome());
         dto.setEmail(entity.getEmail());
         dto.setUsername(entity.getUsername());
-        dto.setPassword(entity.getPassword());
+        dto.setPassword(passwordEncoder.encode(entity.getPassword()));
         dto.setAvatar(entity.getAvatar());
         dto.setTipoRuolo(entity.getTipoRuolo().name());
         return dto;
@@ -33,7 +36,7 @@ public class UtenteMapperDTO {
         entity.setCognome(dto.getCognome());
         entity.setEmail(dto.getEmail());
         entity.setUsername(dto.getUsername());
-        entity.setPassword(dto.getPassword());
+
         String tipoRuolo = Optional.ofNullable(dto.getTipoRuolo()).orElse("USER"); // se c'è il ruolo, okay.. sennò di default è user!
         ERuolo ruolo = ERuolo.valueOf(tipoRuolo.toUpperCase());
         entity.setTipoRuolo(ruolo);

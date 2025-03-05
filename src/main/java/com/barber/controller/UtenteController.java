@@ -37,14 +37,5 @@ public class UtenteController {
         utenteService.deleteUtente(id);
         return ResponseEntity.noContent().build();
     }
-    @PostMapping(value = "/avatar",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<UtenteDTO> createUtenteWithAvatar(@RequestPart("utente") UtenteDTO utenteDTO, @RequestPart("file")MultipartFile file){
-        try {
-            UtenteDTO savedUser = utenteService.uploadImage(utenteDTO,file);
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
-    }
 }

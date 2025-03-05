@@ -8,6 +8,7 @@ import com.barber.repository.UtenteRepository;
 import com.cloudinary.utils.ObjectUtils;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,6 +24,7 @@ public class UtenteService {
     @Autowired UtenteRepository utenteRepository;
     @Autowired UtenteMapperDTO utenteMapperDTO;
     @Autowired CloudinaryConfig cloudinaryConfig;
+    @Autowired PasswordEncoder passwordEncoder;
 
 
 
@@ -38,7 +40,10 @@ public class UtenteService {
             utenteDTO.setTipoRuolo("USER");
 
         }
+
+
         Utente utente = utenteMapperDTO.to_entity(utenteDTO);
+        utente.setPassword(passwordEncoder.encode(utenteDTO.getPassword()));
         utente = utenteRepository.save(utente);
         return utenteMapperDTO.to_dto(utente);
     }
