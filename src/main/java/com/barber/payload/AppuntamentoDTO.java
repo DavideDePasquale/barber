@@ -9,6 +9,7 @@ import lombok.Data;
 
 import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Data
 public class AppuntamentoDTO {
@@ -17,7 +18,7 @@ public class AppuntamentoDTO {
     private Long id;
     private LocalDate data;
 
-    private Time oraappuntamento;
+    private LocalTime oraappuntamento;
 
     private Long id_trattamento;
 

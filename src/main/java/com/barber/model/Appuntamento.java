@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Data
@@ -21,12 +22,16 @@ public class Appuntamento {
     @Column(nullable = false)
     private LocalDate data;
     @Column(nullable = false)
-    private Time oraappuntamento;
+    private LocalTime oraappuntamento;
     @ManyToOne
     @JoinColumn(name = "id_trattammento")
     private Trattamento trattamento;
     @ManyToOne
     @JoinColumn(name = "id_utente")
     private Utente utente;
+
+    public LocalTime getOraFineAppuntamento(){
+        return oraappuntamento.plusMinutes(trattamento.getDurataMinuti());
+    }
 
 }

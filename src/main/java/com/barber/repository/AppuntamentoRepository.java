@@ -2,10 +2,13 @@ package com.barber.repository;
 
 import com.barber.model.Appuntamento;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 public interface AppuntamentoRepository extends JpaRepository<Appuntamento,Long> {
@@ -14,7 +17,10 @@ public interface AppuntamentoRepository extends JpaRepository<Appuntamento,Long>
 
     List<Appuntamento> findAllByTrattamento_Id(Long trattamentoId);
 
-    boolean existsByDataAndOraappuntamento(LocalDate data,Time oraappuntamento);
+    boolean existsByDataAndOraappuntamento(LocalDate data, LocalTime oraappuntamento);
+
+
+
 
 
 }
