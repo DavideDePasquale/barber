@@ -18,7 +18,17 @@ public class Trattamento {
     private Long id;
     @Enumerated(EnumType.STRING)
     private ETrattamento tipotrattamento;
+    private int durataMinuti;
     @Column(nullable = false)
     private double prezzo;
+
+
+    @PrePersist
+    @PreUpdate
+    private void calcolaDurataDaEnum(){
+        if (tipotrattamento != null){
+            this.durataMinuti = tipotrattamento.getDurataMinuti();
+        }
+    }
 
 }
