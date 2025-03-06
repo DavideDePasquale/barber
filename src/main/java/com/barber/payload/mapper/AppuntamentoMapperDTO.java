@@ -4,6 +4,7 @@ import com.barber.model.Appuntamento;
 import com.barber.model.Trattamento;
 import com.barber.model.Utente;
 import com.barber.payload.AppuntamentoDTO;
+import com.barber.payload.AppuntamentoDTOnoID;
 import com.barber.payload.UtenteDTO;
 import com.barber.repository.TrattamentoRepository;
 import com.barber.repository.UtenteRepository;
@@ -57,4 +58,42 @@ public class AppuntamentoMapperDTO {
         }
         return appuntamento;
     }
+
+
+
+    //creati per le prenotazioni dove non serve specificare l'id (quando un utente di logga)
+    public AppuntamentoDTO toAppuntamentoDTO(AppuntamentoDTOnoID dtoNoId, Long idUtente) {
+        AppuntamentoDTO dto = new AppuntamentoDTO();
+        dto.setData(dtoNoId.getData());
+        dto.setOraappuntamento(dtoNoId.getOraappuntamento());
+        dto.setId_trattamento(dtoNoId.getId_trattamento());
+        dto.setId_utente(idUtente);  // Imposta l'ID dell'utente
+        return dto;
+    }
+    public AppuntamentoDTOnoID toAppuntamentoDTOnoID(AppuntamentoDTO dto) {
+        AppuntamentoDTOnoID dtoNoID = new AppuntamentoDTOnoID();
+
+        dtoNoID.setData(dto.getData());
+        dtoNoID.setOraappuntamento(dto.getOraappuntamento());
+        dtoNoID.setId_trattamento(dto.getId_trattamento());
+        return dtoNoID;
+    }
+
+    public Appuntamento fromNoiDDTOto_entity(AppuntamentoDTOnoID dto) {
+        Appuntamento appuntamento = new Appuntamento();
+        appuntamento.setData(dto.getData());
+        appuntamento.setOraappuntamento(dto.getOraappuntamento());
+
+        Trattamento trattamento = trattamentoRepository.findById(dto.getId_trattamento())
+                .orElseThrow(() -> new RuntimeException("❌ Trattamento non trovato! ❌"));
+        appuntamento.setTrattamento(trattamento);
+
+        return appuntamento;
+    }
+
+
+
+
+
+
 }

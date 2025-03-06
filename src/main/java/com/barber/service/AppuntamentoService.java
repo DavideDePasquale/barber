@@ -8,12 +8,16 @@ import com.barber.model.Appuntamento;
 import com.barber.model.Trattamento;
 import com.barber.model.Utente;
 import com.barber.payload.AppuntamentoDTO;
+import com.barber.payload.AppuntamentoDTOnoID;
 import com.barber.payload.mapper.AppuntamentoMapperDTO;
 import com.barber.repository.AppuntamentoRepository;
 import com.barber.repository.UtenteRepository;
+import com.barber.security.UtenteDetailsImpl;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -28,12 +32,15 @@ public class AppuntamentoService {
     @Autowired AppuntamentoRepository appuntamentoRepository;
     @Autowired UtenteRepository utenteRepository;
     @Autowired AppuntamentoMapperDTO appuntamentoMapperDTO;
+    @Autowired EmailService emailService;
 
-    public AppuntamentoDTO createAppuntamento(AppuntamentoDTO appuntamentoDTO, Long id_utente) throws SundayException, MondayException, OrarioException, ConflittoAppuntamentiException {
-        Utente utente = utenteRepository.findById(id_utente)
+    public AppuntamentoDTO createAppuntamento(AppuntamentoDTOnoID appuntamentoDTOnoID, Long userId) throws SundayException, MondayException, OrarioException, ConflittoAppuntamentiException {
+
+        Utente utente = utenteRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("❌ Utente non trovato! ❌"));
 
-        Appuntamento appuntamento = appuntamentoMapperDTO.to_entity(appuntamentoDTO);
+        Appuntamento appuntamento = appuntamentoMapperDTO.fromNoiDDTOto_entity(appuntamentoDTOnoID);
+
 
         // Recupero tutti gli appuntamenti nella stessa data
         List<Appuntamento> appuntamentiDelGiorno = appuntamentoRepository.findByData(appuntamento.getData());
@@ -71,8 +78,21 @@ public class AppuntamentoService {
         }
 
         // Se non ci sono sovrapposizioni, salvo l'appuntamento
+        System.out.println("Utente: " + utente);
         appuntamento.setUtente(utente);
+        System.out.println("Appuntamento salvato: " + appuntamento);
         appuntamento = appuntamentoRepository.save(appuntamento);
+
+        System.out.println("Appuntamento salvatooo: " + appuntamento);
+
+
+        // invio mail.
+        String subject = "📍Conferma Prenotazione";
+        String body = "👋 Ciao " + utente.getNome() + ",\n\nLa tua prenotazione per il " + appuntamento.getData()
+                + " alle " + appuntamento.getOraappuntamento() + " è confermata!\n\nTi aspettiamo!\n\n Ricordati sempre di arrivare 5 minuti prima della prenotazione!🕰️" +
+                "\n\n BarberApp, l'App che ti da un taglio ✂️ ️";
+
+        emailService.inviaMail(utente.getEmail(),subject,body);
 
         return appuntamentoMapperDTO.to_dto(appuntamento);
     }
@@ -111,4 +131,11 @@ public class AppuntamentoService {
         return appuntamentiPerTrattamento.stream().map(appuntamentoMapperDTO::to_dto).toList();
     }
 
+    // Metodo per recuperare l'email dell'utente
+    public String getUtenteEmailById(Long userId) {
+        // Logica per recuperare l'email dell'utente dal database
+        // Questo è un esempio e potrebbe variare in base alla tua implementazione
+        Utente utente = utenteRepository.getById(userId);
+        return utente.getEmail();
+    }
 }

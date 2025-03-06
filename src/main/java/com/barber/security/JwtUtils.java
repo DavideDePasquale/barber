@@ -24,9 +24,10 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    public String generateToken(String username, List<String> roles){
+    public String generateToken(String username,Long idUtente, List<String> roles){
         Claims claims = Jwts.claims().setSubject(username);
         claims.put("roles",roles);
+        claims.put("utenteId",idUtente);
         return Jwts.builder()
                 .setSubject(username)
                 .setClaims(claims)
@@ -61,6 +62,20 @@ public class JwtUtils {
                 .parseClaimsJws(token)
                 .getBody();
         return claims.get("roles",List.class);
+    }
+
+    //estraggo tutti i clamis dal token
+    public Claims estraiTuttiIClaims(String token){
+        return Jwts.parser()
+                .setSigningKey(getSigningKey())   //impostiamo la chiave per la validazione
+                .parseClaimsJws(token)  //qui avviene la decodifica del token
+                .getBody();             // dove ci restituisce il claims (ciò che voglio indietro)
+    }
+
+    //estrazione dell'id dell'utente dal token
+    public Long estraiUtenteId(String token){
+        Claims claims = estraiTuttiIClaims(token);         //estrazione dei claims dal token
+        return claims.get("utenteId",Long.class);  //estrazione id utente
     }
 
 }

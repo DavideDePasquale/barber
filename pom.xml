@@ -115,6 +115,15 @@
 			<version>2.0.0</version>
 		</dependency>
 
+		<!-- SPRING MAIL -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+
+
+
+
 	</dependencies>
 
 	<build>
