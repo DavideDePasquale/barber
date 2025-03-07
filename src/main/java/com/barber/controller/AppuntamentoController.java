@@ -38,18 +38,13 @@ public class AppuntamentoController {
             Long userId = (Long) request.getAttribute("userId");
 
             AppuntamentoDTO appuntamentoCreato;
-
-
           try {
-
               try {
-                      appuntamentoCreato = appuntamentoService.createAppuntamento(appuntamentoDTOnoID,userId);
-
+                  appuntamentoCreato = appuntamentoService.createAppuntamento(appuntamentoDTOnoID,userId);
                   System.out.println("Appuntamento creato con successo: " + appuntamentoCreato);
               } catch (ConflittoAppuntamentiException mess) {
                   return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mess.getMessage());
               }
-
           } catch (SundayException ms) {
               return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ms.getMessage());
           } catch (MondayException ex) {
@@ -57,7 +52,6 @@ public class AppuntamentoController {
           } catch (OrarioException mx) {
              return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mx.getMessage());
           }
-
           return ResponseEntity.status(HttpStatus.CREATED).body(appuntamentoCreato);
       } catch (RuntimeException e) {
          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
@@ -90,7 +84,6 @@ public class AppuntamentoController {
     public ResponseEntity<AppuntamentoDTO> updateAppuntamento(@PathVariable Long id, @RequestBody AppuntamentoDTO appuntamentoDTO){
        return ResponseEntity.ok(appuntamentoService.updateAppuntamento(id,appuntamentoDTO));
     }
-
     @GetMapping("/searchbytrattamento")
     public ResponseEntity<List<AppuntamentoDTO>> getAppuntamentiByTrattamento(@RequestParam(defaultValue = "1") Long idtrattamento){
         return ResponseEntity.ok(appuntamentoService.findAllByTrattamento(idtrattamento));
