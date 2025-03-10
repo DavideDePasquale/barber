@@ -1,9 +1,6 @@
 package com.barber.controller;
 
-import com.barber.exception.ConflittoAppuntamentiException;
-import com.barber.exception.MondayException;
-import com.barber.exception.OrarioException;
-import com.barber.exception.SundayException;
+import com.barber.exception.*;
 import com.barber.model.Appuntamento;
 import com.barber.payload.AppuntamentoDTO;
 import com.barber.payload.AppuntamentoDTOnoID;
@@ -30,7 +27,6 @@ public class AppuntamentoController {
     @Autowired
     private AppuntamentoMapperDTO appuntamentoMapperDTO;
 
-
     @PostMapping("/nuovoappuntamento")
     public ResponseEntity<?> createAppuntamento(HttpServletRequest request, @RequestBody @Validated AppuntamentoDTOnoID appuntamentoDTOnoID){
 
@@ -44,6 +40,10 @@ public class AppuntamentoController {
                   System.out.println("Appuntamento creato con successo: " + appuntamentoCreato);
               } catch (ConflittoAppuntamentiException mess) {
                   return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mess.getMessage());
+              } catch (GiornoException e) {
+                  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+              } catch (OrarioPassatoException er) {
+                  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(er.getMessage());
               }
           } catch (SundayException ms) {
               return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ms.getMessage());

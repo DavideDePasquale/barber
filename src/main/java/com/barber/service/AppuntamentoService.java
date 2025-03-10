@@ -1,9 +1,6 @@
 package com.barber.service;
 
-import com.barber.exception.ConflittoAppuntamentiException;
-import com.barber.exception.MondayException;
-import com.barber.exception.OrarioException;
-import com.barber.exception.SundayException;
+import com.barber.exception.*;
 import com.barber.model.Appuntamento;
 import com.barber.model.Utente;
 import com.barber.payload.AppuntamentoDTO;
@@ -19,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +30,7 @@ public class AppuntamentoService {
     @Autowired AppuntamentoMapperDTO appuntamentoMapperDTO;
     @Autowired EmailService emailService;
 
-    public AppuntamentoDTO createAppuntamento(AppuntamentoDTOnoID appuntamentoDTOnoID, Long userId) throws SundayException, MondayException, OrarioException, ConflittoAppuntamentiException {
+    public AppuntamentoDTO createAppuntamento(AppuntamentoDTOnoID appuntamentoDTOnoID, Long userId) throws SundayException, MondayException, OrarioException, ConflittoAppuntamentiException, GiornoException, OrarioPassatoException {
 
         Utente utente = utenteRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("❌ Utente non trovato! ❌"));
@@ -66,7 +64,22 @@ public class AppuntamentoService {
         LocalTime oraChiusuraPranzo = LocalTime.of(13,30);
         LocalTime oraAperturaPomeridiana = LocalTime.of(15,0);
         LocalTime oraAperturaMattina = LocalTime.of(8,0);
+        LocalDate giornoCorrente = LocalDate.now();
+        LocalTime orarioCorrente = LocalTime.now(ZoneId.of("Europe/Rome"));
+
         // controllo sull'orario di prenotazione
+
+        if (appuntamento.getData().isBefore(giornoCorrente)){
+            throw new GiornoException("❌Non puoi prenotare per un giorno già passato!❌");
+        }
+        if (appuntamento.getData().equals(giornoCorrente) && appuntamento.getOraappuntamento().isBefore(orarioCorrente)){
+
+
+                throw new OrarioPassatoException("❌ Non puoi prenotare per un orario già passato nella giornata! ❌");
+
+        }
+
+
         if (appuntamento.getOraappuntamento().isBefore(oraAperturaMattina) && appuntamento.getOraappuntamento().isAfter(orachiusuraSera)
         || appuntamento.getOraFineAppuntamento().isAfter(oraChiusuraPranzo) && appuntamento.getOraFineAppuntamento().isBefore(oraAperturaPomeridiana)
         ){
