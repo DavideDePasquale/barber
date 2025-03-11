@@ -5,6 +5,7 @@ import com.barber.model.Appuntamento;
 import com.barber.payload.AppuntamentoDTO;
 import com.barber.payload.AppuntamentoDTOnoID;
 import com.barber.payload.mapper.AppuntamentoMapperDTO;
+import com.barber.repository.AppuntamentoRepository;
 import com.barber.service.AppuntamentoService;
 import com.barber.service.EmailService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +25,7 @@ public class AppuntamentoController {
 
 
     @Autowired AppuntamentoService appuntamentoService;
+    @Autowired AppuntamentoRepository appuntamentoRepository;
     @Autowired
     private AppuntamentoMapperDTO appuntamentoMapperDTO;
 
@@ -87,6 +89,20 @@ public class AppuntamentoController {
     @GetMapping("/searchbytrattamento")
     public ResponseEntity<List<AppuntamentoDTO>> getAppuntamentiByTrattamento(@RequestParam(defaultValue = "1") Long idtrattamento){
         return ResponseEntity.ok(appuntamentoService.findAllByTrattamento(idtrattamento));
+    }
+
+
+    @GetMapping("/orariodisponibile")
+    public List<String> getOrariDisponibili(@RequestParam("data") String data) {
+        LocalDate selectedDate = LocalDate.parse(data); // Converte la data passata come stringa a LocalDate
+
+        // Recupera gli appuntamenti del giorno dal database
+        List<Appuntamento> appuntamentiDelGiorno = appuntamentoRepository.findByData(selectedDate);
+
+        // Ottieni gli orari disponibili per la data specificata
+        List<String> orariDisponibili = appuntamentoService.getOrariDisponibili(selectedDate, appuntamentiDelGiorno);
+
+        return orariDisponibili; // Restituisce la lista degli orari disponibili
     }
 
 }

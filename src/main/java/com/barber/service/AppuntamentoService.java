@@ -176,26 +176,25 @@ public class AppuntamentoService {
 
 
     // qui mi sto creando le basi per il calendario che vorrei fare nel front
-    public List<String> getOrariDisponibili(LocalDate data, List<Appuntamento> appuntamentiDelGiorno){
-        LocalTime orachiusuraSera = LocalTime.of(19,0);
-        LocalTime oraChiusuraPranzo = LocalTime.of(13,30);
-        LocalTime oraAperturaPomeridiana = LocalTime.of(15,0);
-        LocalTime oraAperturaMattina = LocalTime.of(8,0);
+    public List<String> getOrariDisponibili(LocalDate data, List<Appuntamento> appuntamentiDelGiorno) {
+        LocalTime orachiusuraSera = LocalTime.of(19, 0);
+        LocalTime oraChiusuraPranzo = LocalTime.of(13, 30);
+        LocalTime oraAperturaPomeridiana = LocalTime.of(15, 0);
+        LocalTime oraAperturaMattina = LocalTime.of(8, 0);
         List<String> listaOrari = new ArrayList<>();
         LocalTime currentTime = oraAperturaMattina;
 
-        while (currentTime.plusMinutes(39).isBefore(orachiusuraSera)){
+        while (currentTime.plusMinutes(39).isBefore(orachiusuraSera)) {
             if (currentTime.isBefore(oraChiusuraPranzo)
                     || currentTime.plusMinutes(39).isBefore(oraChiusuraPranzo)
-                    || currentTime.isAfter(oraAperturaPomeridiana)){
+                    || currentTime.isAfter(oraAperturaPomeridiana)) {
                 String formattedTime = currentTime.format(DateTimeFormatter.ofPattern("HH:mm"));
 
-
                 final LocalTime finalTimeSlot = currentTime;
-                //verifica dell'orario se è già stato preso
+                // Verifica dell'orario se è già stato preso
                 boolean isTaken = appuntamentiDelGiorno.stream()
-                        .anyMatch(appuntamento -> isOrarioSovrapposto(appuntamento,finalTimeSlot));
-                if (!isTaken){
+                        .anyMatch(appuntamento -> isOrarioSovrapposto(appuntamento, finalTimeSlot));
+                if (!isTaken) {
                     listaOrari.add(formattedTime);
                 }
             }
@@ -204,6 +203,7 @@ public class AppuntamentoService {
         }
         return listaOrari;
     }
+
 
     private boolean isOrarioSovrapposto(Appuntamento appuntamento, LocalTime currentTime) {
         LocalTime appuntamentoInizio = appuntamento.getOraappuntamento();
