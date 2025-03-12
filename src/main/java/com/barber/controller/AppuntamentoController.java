@@ -6,6 +6,7 @@ import com.barber.payload.AppuntamentoDTO;
 import com.barber.payload.AppuntamentoDTOnoID;
 import com.barber.payload.mapper.AppuntamentoMapperDTO;
 import com.barber.repository.AppuntamentoRepository;
+import com.barber.security.JwtUtils;
 import com.barber.service.AppuntamentoService;
 import com.barber.service.EmailService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,6 +29,8 @@ public class AppuntamentoController {
     @Autowired AppuntamentoRepository appuntamentoRepository;
     @Autowired
     private AppuntamentoMapperDTO appuntamentoMapperDTO;
+    @Autowired
+    JwtUtils jwtUtils;
 
     @PostMapping("/nuovoappuntamento")
     public ResponseEntity<?> createAppuntamento(HttpServletRequest request, @RequestBody @Validated AppuntamentoDTOnoID appuntamentoDTOnoID){
@@ -66,6 +69,8 @@ public class AppuntamentoController {
         return ResponseEntity.ok(appuntamenti);
     }
 
+
+
     @GetMapping("/search")
     public ResponseEntity<List<AppuntamentoDTO>> getAppuntamentoByDataBetween(@RequestParam(defaultValue = "2025-01-01") LocalDate inizio,
                                                                               @RequestParam(defaultValue = "2025-01-01") LocalDate fine){
@@ -90,6 +95,11 @@ public class AppuntamentoController {
     public ResponseEntity<List<AppuntamentoDTO>> getAppuntamentiByTrattamento(@RequestParam(defaultValue = "1") Long idtrattamento){
         return ResponseEntity.ok(appuntamentoService.findAllByTrattamento(idtrattamento));
     }
+    @GetMapping("/barber/appuntamenti")
+    public ResponseEntity<List<AppuntamentoDTO>> getAllAppointmentsForAdmin(){
+        List<AppuntamentoDTO> appuntamenti = appuntamentoService.getAppointmentsWithDetails();
+        return ResponseEntity.ok(appuntamenti);
+    }
 
 
     @GetMapping("/orariodisponibile")
@@ -103,6 +113,19 @@ public class AppuntamentoController {
         List<String> orariDisponibili = appuntamentoService.getOrariDisponibili(selectedDate, appuntamentiDelGiorno);
 
         return orariDisponibili; // Restituisce la lista degli orari disponibili
+    }
+
+
+
+    @GetMapping("/mieiappuntamenti")
+    public ResponseEntity<List<Appuntamento>> getMieiAppuntamenti(@RequestHeader("Authorization") String token) {
+        try {
+            String username = jwtUtils.getUsernameFromToken(token.substring(7)); // Rimuove "Bearer " dal token
+            List<Appuntamento> appuntamenti = appuntamentoService.getAppuntamentiByUsername(username);
+            return ResponseEntity.ok(appuntamenti);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
 }

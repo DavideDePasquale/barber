@@ -24,4 +24,9 @@ public class AppuntamentoDTO {
 
     private Long id_utente;
 
+
+    //
+    private String utenteNome;
+    private String trattamentoNome;
+
 }

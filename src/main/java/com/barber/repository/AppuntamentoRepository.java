@@ -20,6 +20,7 @@ public interface AppuntamentoRepository extends JpaRepository<Appuntamento,Long>
     boolean existsByDataAndOraappuntamento(LocalDate data, LocalTime oraappuntamento);
 
 
+    List<Appuntamento> findByUtenteUsername(String username);
 
 
 

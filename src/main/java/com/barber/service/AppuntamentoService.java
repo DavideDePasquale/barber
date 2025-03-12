@@ -2,11 +2,13 @@ package com.barber.service;
 
 import com.barber.exception.*;
 import com.barber.model.Appuntamento;
+import com.barber.model.Trattamento;
 import com.barber.model.Utente;
 import com.barber.payload.AppuntamentoDTO;
 import com.barber.payload.AppuntamentoDTOnoID;
 import com.barber.payload.mapper.AppuntamentoMapperDTO;
 import com.barber.repository.AppuntamentoRepository;
+import com.barber.repository.TrattamentoRepository;
 import com.barber.repository.UtenteRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -20,6 +22,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -27,6 +30,7 @@ public class AppuntamentoService {
 
     @Autowired AppuntamentoRepository appuntamentoRepository;
     @Autowired UtenteRepository utenteRepository;
+    @Autowired TrattamentoRepository trattamentoRepository;
     @Autowired AppuntamentoMapperDTO appuntamentoMapperDTO;
     @Autowired EmailService emailService;
 
@@ -162,6 +166,44 @@ public class AppuntamentoService {
         Utente utente = utenteRepository.getById(userId);
         return utente.getEmail();
     }
+    //metodo che mi restituisce gli appuntamenti tramite username
+    public List<Appuntamento> getAppuntamentiByUsername(String username){
+        return appuntamentoRepository.findByUtenteUsername(username);
+    }
+    //metodo che mi restituisce tutti gli appuntamenti!
+    public List<AppuntamentoDTO> getAllAppointmentsForAdmin(){
+        List<Appuntamento> appuntamenti = appuntamentoRepository.findAll();
+        return appuntamenti.stream().map(appuntamentoMapperDTO::to_dto).collect(Collectors.toList());
+    }
+
+
+
+
+    //
+    public List<AppuntamentoDTO> getAppointmentsWithDetails() {
+        List<Appuntamento> appuntamenti = appuntamentoRepository.findAll(); // O la query che usi per recuperare gli appuntamenti
+        List<AppuntamentoDTO> appuntamentiDTO = new ArrayList<>();
+
+        for (Appuntamento appuntamento : appuntamenti) {
+            // Recupera i dettagli dell'utente tramite l'ID
+            Utente utente = utenteRepository.findById(appuntamento.getUtente().getId()).orElse(null);
+            // Recupera i dettagli del trattamento tramite l'ID
+            Trattamento trattamento = trattamentoRepository.findById(appuntamento.getTrattamento().getId()).orElse(null);
+
+            // Aggiungi i dettagli nell'AppuntamentoDTO
+            if (utente != null && trattamento != null) {
+                AppuntamentoDTO dto = new AppuntamentoDTO();
+                dto.setId(appuntamento.getId());
+                dto.setData(appuntamento.getData());
+                dto.setOraappuntamento(appuntamento.getOraappuntamento());
+                dto.setUtenteNome(utente.getNome() + " " + utente.getCognome());
+                dto.setTrattamentoNome(String.valueOf(trattamento.getTipotrattamento()));
+
+                appuntamentiDTO.add(dto);
+            }
+        }
+        return appuntamentiDTO;
+    }
 
 
 
@@ -212,5 +254,7 @@ public class AppuntamentoService {
 
         return !(currentTime.plusMinutes(39).isBefore(appuntamentoInizio) || currentTime.isAfter(appuntamentoFine));
     }
+
+
 
 }
