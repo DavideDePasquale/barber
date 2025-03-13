@@ -124,7 +124,7 @@ public class AppuntamentoController {
             List<Appuntamento> appuntamenti = appuntamentoService.getAppuntamentiByUsername(username);
             return ResponseEntity.ok(appuntamenti);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null); // Aggiungi null per evitare risposte errate
         }
     }
 

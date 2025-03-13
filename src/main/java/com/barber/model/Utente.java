@@ -26,6 +26,7 @@ public class Utente {
     private String username;
     @Column(nullable = false)
     private String password;
+    @Column(columnDefinition = "TEXT")
     private String avatar;
     @Enumerated(EnumType.STRING)
     private ERuolo tipoRuolo;
