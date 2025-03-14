@@ -59,7 +59,7 @@ public class AppuntamentoController {
           }
           return ResponseEntity.status(HttpStatus.CREATED).body(appuntamentoCreato);
       } catch (RuntimeException e) {
-         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Errore imprevisto : " + e.getMessage());
       }
     }
 
@@ -127,5 +127,18 @@ public class AppuntamentoController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null); // Aggiungi null per evitare risposte errate
         }
     }
+
+
+    @GetMapping("/orariliberi/{data}")
+    public ResponseEntity<List<String>> getOrariLiberi(@PathVariable String data) {
+        LocalDate selectedDate = LocalDate.parse(data);  // Converte la data in LocalDate
+        List<Appuntamento> appuntamentiDelGiorno = appuntamentoService.getAppuntamentoByData(selectedDate); // Recupera gli appuntamenti del giorno
+
+        List<String> orariDisponibili = appuntamentoService.getOrariDisponibili(selectedDate, appuntamentiDelGiorno);
+
+        return ResponseEntity.ok(orariDisponibili);
+    }
+
+
 
 }

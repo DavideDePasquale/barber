@@ -44,7 +44,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login", "/auth/register", "/auth/avatar", "/trattamenti/**").permitAll()
                         .requestMatchers("/appuntamento/nuovoappuntamento", "/utente/{id}", "/appuntamento/orariodisponibile", "/appuntamento/mieiappuntamenti").hasAuthority("USER")
-                        .requestMatchers("/utente/getAll","/utente/{id}", "/appuntamento/searchappuntamento","/appuntamento/search","/appuntamento/{id}","/appuntamento/searchbytrattamento", "appuntamento/barber/appuntamenti", "/trattamenti/**").hasAuthority("BARBER")
+                        .requestMatchers("/utente/getAll","/utente/{id}", "/appuntamento/searchappuntamento","/appuntamento/search","/appuntamento/{id}","/appuntamento/searchbytrattamento", "appuntamento/barber/appuntamenti", "/trattamenti/**", "/appuntamento/orariliberi").hasAuthority("BARBER")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -15,10 +15,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,17 +42,31 @@ public class AppuntamentoService {
             throw new RuntimeException("❌ Trattamento non valido! ❌");
         }
 
-        //controllo sul giorno della prenotazione! non deve essere possibile prenotare per un giorno già vissuto
+        // Gestione corretta della data con il fuso orario
+        ZonedDateTime zonedDateTime = ZonedDateTime.now(ZoneId.of("Europe/Rome"));
+
+// Converte il ZonedDateTime in LocalDate (senza fuso orario)
+        LocalDate localDate = zonedDateTime.toLocalDate();
+
+// Log della data finale
+        System.out.println("Data finale: " + localDate);
+
+        System.out.println("Data appuntamento con fuso orario: " + zonedDateTime); // Debug per vedere la data con fuso orario
+
+        // Controllo sul giorno della prenotazione: non deve essere possibile prenotare per un giorno già vissuto
         if (appuntamento.getData().isBefore(LocalDate.now())){
             throw new IllegalArgumentException("❌ Non puoi prenotare per un giorno passato! ❌");
         }
-        // controllo sull'appuntamento che non deve essere oltre i 6 mesi da oggi.
+
+        // Controllo sull'appuntamento che non deve essere oltre i 6 mesi da oggi
         if (appuntamento.getData().isAfter(LocalDate.now().plusMonths(6))){
             throw new IllegalArgumentException("❌ Non puoi prenotare oltre i 6 mesi da oggi! ❌");
         }
+
         // Recupero tutti gli appuntamenti nella stessa data
         List<Appuntamento> appuntamentiDelGiorno = appuntamentoRepository.findByData(appuntamento.getData());
-        //faccio un controllo sul giorno della settimana : se è domenica non si può prenotare/idem lunedi
+
+        // Controllo sul giorno della settimana: se è domenica o lunedì, non si può prenotare
         if (appuntamento.getData().getDayOfWeek() == DayOfWeek.SUNDAY){
             throw new SundayException("❌ Non è possibile prenotare la domenica! ❌ ");
         }
@@ -63,7 +74,7 @@ public class AppuntamentoService {
             throw new MondayException("❌ Il salone è chiuso il Lunedì! ❌ ");
         }
 
-        //definisco gli orari di chiusura e apertura del locale cosi poi da metterci qualche controllo
+        // Definizione orari di apertura/chiusura
         LocalTime orachiusuraSera = LocalTime.of(19,0);
         LocalTime oraChiusuraPranzo = LocalTime.of(13,30);
         LocalTime oraAperturaPomeridiana = LocalTime.of(15,0);
@@ -71,27 +82,24 @@ public class AppuntamentoService {
         LocalDate giornoCorrente = LocalDate.now();
         LocalTime orarioCorrente = LocalTime.now(ZoneId.of("Europe/Rome"));
 
-        // controllo sull'orario di prenotazione
-
+        // Controllo sull'orario di prenotazione
         if (appuntamento.getData().isBefore(giornoCorrente)){
-            throw new GiornoException("❌Non puoi prenotare per un giorno già passato!❌");
+            throw new GiornoException("❌ Non puoi prenotare per un giorno già passato! ❌");
         }
         if (appuntamento.getData().equals(giornoCorrente) && appuntamento.getOraappuntamento().isBefore(orarioCorrente)){
-
-
-                throw new OrarioPassatoException("❌ Non puoi prenotare per un orario già passato nella giornata! ❌");
-
+            throw new OrarioPassatoException("❌ Non puoi prenotare per un orario già passato nella giornata! ❌");
         }
 
-
         if (appuntamento.getOraappuntamento().isBefore(oraAperturaMattina) && appuntamento.getOraappuntamento().isAfter(orachiusuraSera)
-        || appuntamento.getOraFineAppuntamento().isAfter(oraChiusuraPranzo) && appuntamento.getOraFineAppuntamento().isBefore(oraAperturaPomeridiana)
+                || appuntamento.getOraFineAppuntamento().isAfter(oraChiusuraPranzo) && appuntamento.getOraFineAppuntamento().isBefore(oraAperturaPomeridiana)
         ){
             throw new OrarioException("❌ Prenotazione non valida! Il salone è chiuso a quell'ora! ❌");
         }
+
         // Calcolo ora inizio e fine del nuovo appuntamento
         LocalTime oraInizio = appuntamento.getOraappuntamento();
         LocalTime oraFine = oraInizio.plusMinutes(appuntamento.getTrattamento().getDurataMinuti());
+
         // Controllo sovrapposizione con gli appuntamenti esistenti
         for (Appuntamento esistente : appuntamentiDelGiorno) {
             LocalTime esistenteInizio = esistente.getOraappuntamento();
@@ -103,27 +111,26 @@ public class AppuntamentoService {
                 throw new ConflittoAppuntamentiException("❌ Orario non disponibile! Scegli un altro orario. ❌");
             }
         }
+
         // Se non ci sono sovrapposizioni, salvo l'appuntamento
-        //x un riscontro sulla console
         System.out.println("Utente: " + utente);
         appuntamento.setUtente(utente);
-        //x un riscontro sulla console
         System.out.println("Appuntamento salvato: " + appuntamento);
         appuntamento = appuntamentoRepository.save(appuntamento);
-        //per un riscontro sulla console
         System.out.println("Appuntamento salvatooo: " + appuntamento);
 
-
-        // invio mail.
+        // Invio email di conferma
         String subject = "📍Conferma Prenotazione";
         String body = "👋 Ciao " + utente.getNome() + ",\n\nLa tua prenotazione per il " + appuntamento.getData()
                 + " alle " + appuntamento.getOraappuntamento() + " è confermata!\n\nTi aspettiamo!\n\n Ricordati sempre di arrivare 5 minuti prima della prenotazione!🕰️" +
                 "\n\n BarberApp, l'App che ti da un taglio ✂️ ️";
 
-        emailService.inviaMail(utente.getEmail(),subject,body);
+        emailService.inviaMail(utente.getEmail(), subject, body);
 
         return appuntamentoMapperDTO.to_dto(appuntamento);
     }
+
+
 
     public AppuntamentoDTO getAppuntamentoById(Long id){
         Appuntamento appuntamento = appuntamentoRepository.findById(id).orElseThrow(() -> new RuntimeException("❌ Appuntamento non trovato! ❌"));
@@ -214,13 +221,17 @@ public class AppuntamentoService {
 
 
 
+    //metodo che mi serve per estrapolarmi gli orari disponibili da visualizzare per il barbiere!
+    public List<Appuntamento> getAppuntamentoByData(LocalDate data){
+        return appuntamentoRepository.findByData(data);
+    }
 
 
 
     // qui mi sto creando le basi per il calendario che vorrei fare nel front
     public List<String> getOrariDisponibili(LocalDate data, List<Appuntamento> appuntamentiDelGiorno) {
         LocalTime orachiusuraSera = LocalTime.of(19, 0);
-        LocalTime oraChiusuraPranzo = LocalTime.of(13, 30);
+        LocalTime oraChiusuraPranzo = LocalTime.of(13, 19);
         LocalTime oraAperturaPomeridiana = LocalTime.of(15, 0);
         LocalTime oraAperturaMattina = LocalTime.of(8, 0);
         List<String> listaOrari = new ArrayList<>();
