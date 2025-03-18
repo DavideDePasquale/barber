@@ -43,7 +43,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login", "/auth/register", "/auth/avatar", "/trattamenti/**").permitAll()
-                        .requestMatchers("/appuntamento/nuovoappuntamento", "/utente/{id}", "/appuntamento/orariodisponibile", "/appuntamento/mieiappuntamenti").hasAuthority("USER")
+                        .requestMatchers("/appuntamento/nuovoappuntamento", "/utente/{id}", "/appuntamento/orariodisponibile", "/appuntamento/mieiappuntamenti", "/appuntamento/{id}").hasAuthority("USER")
                         .requestMatchers("/utente/getAll","/utente/{id}", "/appuntamento/searchappuntamento","/appuntamento/search","/appuntamento/{id}","/appuntamento/searchbytrattamento", "appuntamento/barber/appuntamenti", "/trattamenti/**", "/appuntamento/orariliberi").hasAuthority("BARBER")
                         .anyRequest().authenticated()
                 )

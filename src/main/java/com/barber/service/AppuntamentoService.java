@@ -148,6 +148,7 @@ public class AppuntamentoService {
         Appuntamento appuntamento = appuntamentoRepository.findById(id).orElseThrow(()-> new RuntimeException("❌ Appuntamento non trovato! ❌"));
       appuntamento = appuntamentoMapperDTO.updateAppuntamento(appuntamento,appuntamentoDTO);
       appuntamento = appuntamentoRepository.save(appuntamento);
+
        return appuntamentoMapperDTO.to_dto(appuntamento);
     }
 

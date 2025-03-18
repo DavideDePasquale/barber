@@ -26,6 +26,9 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
+
+
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest){
         System.out.println("🔥 Login request received: " + loginRequest.getUsername());

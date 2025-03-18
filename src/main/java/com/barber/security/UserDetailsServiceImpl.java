@@ -33,6 +33,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .password(utente.get().getPassword())
                 .authorities(utente.get().getTipoRuolo().name()).build();
 
+
+
         // occhio qui!!!!!!!!!
     }
 }

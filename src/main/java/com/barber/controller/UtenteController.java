@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/utente")
@@ -28,10 +29,19 @@ public class UtenteController {
     public ResponseEntity<UtenteDTO> getUtenteById(@PathVariable Long id){
         return ResponseEntity.ok(utenteService.getUtenteById(id));
     }
+
+
+
     @PutMapping("/{id}")
-    public ResponseEntity<UtenteDTO> updateUtente(@PathVariable Long id, @RequestBody UtenteDTO utenteDTO){
-        return ResponseEntity.ok(utenteService.updateUtente(id,utenteDTO));
+    public ResponseEntity<Map<String,String>> updateUtente(@PathVariable Long id, @RequestBody UtenteDTO utenteDTO){
+        Map <String,String> resp = utenteService.updateUtente(id,utenteDTO);
+
+        return ResponseEntity.ok(resp);
     }
+
+
+
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUtente(@PathVariable Long id){
         utenteService.deleteUtente(id);
