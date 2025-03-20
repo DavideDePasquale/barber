@@ -68,24 +68,63 @@ public class UtenteService {
 
 
 
+//    public Map<String, String> updateUtente(Long id, UtenteDTO utenteDTO) {
+//        Utente utente = utenteRepository.findById(id)
+//                .orElseThrow(() -> new RuntimeException("⚠️ Utente non trovato! ⚠️"));
+//
+//        // Mantieni la password se non viene modificata
+//        String oldPassword = utente.getPassword();
+//        utente = utenteMapperDTO.updateUtente(utenteDTO, utente);
+//
+//        if (utenteDTO.getPassword() == null || utenteDTO.getPassword().isEmpty()) {
+//            utente.setPassword(oldPassword);
+//        } else {
+//            utente.setPassword(passwordEncoder.encode(utenteDTO.getPassword()));
+//        }
+//
+//        utente = utenteRepository.save(utente);
+//
+//        // Genera un nuovo token aggiornato
+//        List<String> roles = List.of(utente.getTipoRuolo().name());
+//        String newToken = jwtUtils.generateToken(utente.getUsername(), utente.getId(), roles);
+//
+//        // Restituisci il nuovo token al frontend
+//        Map<String, String> response = new HashMap<>();
+//        response.put("token", newToken);
+//
+//        return response;
+//    }
+
+
+
     public Map<String, String> updateUtente(Long id, UtenteDTO utenteDTO) {
         Utente utente = utenteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("⚠️ Utente non trovato! ⚠️"));
 
-        // Mantieni la password se non viene modificata
+        // Mantieni la vecchia password se non viene modificata
         String oldPassword = utente.getPassword();
-        utente = utenteMapperDTO.updateUtente(utenteDTO, utente);
 
-        if (utenteDTO.getPassword() == null || utenteDTO.getPassword().isEmpty()) {
-            utente.setPassword(oldPassword);
-        } else {
+        // Gestisci la password PRIMA dell'update per evitare sovrascritture
+        boolean isPasswordUpdated = utenteDTO.getPassword() != null && !utenteDTO.getPassword().isEmpty();
+
+        if (isPasswordUpdated) {
             utente.setPassword(passwordEncoder.encode(utenteDTO.getPassword()));
         }
 
+        // Ora aggiorniamo i dati dell'utente senza toccare la password
+        utente = utenteMapperDTO.updateUtente(utenteDTO, utente);
+
+        // Se la password NON è stata aggiornata, ripristiniamo quella vecchia
+        if (!isPasswordUpdated) {
+            utente.setPassword(oldPassword);
+        }
+
+        // Salva l'utente aggiornato nel database
         utente = utenteRepository.save(utente);
 
         // Genera un nuovo token aggiornato
-        List<String> roles = List.of(utente.getTipoRuolo().name());
+        // Ruolo deve essere passato come lista
+        List<String> roles = utente.getTipoRuolo() != null ? List.of(utente.getTipoRuolo().name()) : List.of("USER");
         String newToken = jwtUtils.generateToken(utente.getUsername(), utente.getId(), roles);
 
         // Restituisci il nuovo token al frontend
@@ -94,6 +133,7 @@ public class UtenteService {
 
         return response;
     }
+
 
 
 

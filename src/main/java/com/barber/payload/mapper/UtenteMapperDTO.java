@@ -41,6 +41,9 @@ public class UtenteMapperDTO {
         ERuolo ruolo = ERuolo.valueOf(tipoRuolo.toUpperCase());
         entity.setTipoRuolo(ruolo);
         entity.setAvatar(dto.getAvatar());
+        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+            entity.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
         return entity;
     }
 
@@ -62,8 +65,8 @@ public class UtenteMapperDTO {
         if (utenteDTO.getUsername() != null){
             utente.setUsername(utenteDTO.getUsername());
         }
-        if (utenteDTO.getPassword() != null){
-            utente.setPassword(utenteDTO.getPassword());
+        if (utenteDTO.getPassword() != null && !utenteDTO.getPassword().equals(utente.getPassword())) {
+            utente.setPassword(passwordEncoder.encode(utenteDTO.getPassword()));
         }
         if (utenteDTO.getTipoRuolo() != null){
             utente.setTipoRuolo(ERuolo.valueOf(utenteDTO.getTipoRuolo().toUpperCase()));
