@@ -81,5 +81,4 @@ public class SecurityConfig {
         return ResponseEntity.ok("Just for Admin.");
     }
 
-
 }

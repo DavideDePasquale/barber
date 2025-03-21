@@ -65,9 +65,6 @@ public class UtenteMapperDTO {
         if (utenteDTO.getUsername() != null){
             utente.setUsername(utenteDTO.getUsername());
         }
-        if (utenteDTO.getPassword() != null && !utenteDTO.getPassword().equals(utente.getPassword())) {
-            utente.setPassword(passwordEncoder.encode(utenteDTO.getPassword()));
-        }
         if (utenteDTO.getTipoRuolo() != null){
             utente.setTipoRuolo(ERuolo.valueOf(utenteDTO.getTipoRuolo().toUpperCase()));
         }
