@@ -1,6 +1,8 @@
 package com.barber.service;
 
 import com.barber.configuration.CloudinaryConfig;
+import com.barber.exception.DuplicateEmailException;
+import com.barber.exception.DuplicateUsernameException;
 import com.barber.model.Utente;
 import com.barber.payload.UtenteDTO;
 import com.barber.payload.mapper.UtenteMapperDTO;
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,12 +35,12 @@ public class UtenteService {
 
 
     // CRUD BASE
-    public UtenteDTO registerUtente(UtenteDTO utenteDTO){
+    public UtenteDTO registerUtente(UtenteDTO utenteDTO) throws DuplicateEmailException, DuplicateUsernameException {
         if (utenteRepository.existsByEmail(utenteDTO.getEmail())){
-            throw new RuntimeException("⚠️ Email già in uso! ⚠️");
+            throw new DuplicateEmailException("⚠️ Email già in uso! ⚠️");
         }
         if (utenteRepository.existsByUsername(utenteDTO.getUsername())){
-            throw new RuntimeException("⚠️ Username già in uso! ⚠️");
+            throw new DuplicateUsernameException("⚠️ Username già in uso! ⚠️");
         }
         if (utenteDTO.getTipoRuolo() == null){
             utenteDTO.setTipoRuolo("USER");
@@ -97,9 +100,22 @@ public class UtenteService {
 
 
 
-    public Map<String, String> updateUtente(Long id, UtenteDTO utenteDTO) {
+    public Map<String, String> updateUtente(Long id, UtenteDTO utenteDTO) throws DuplicateEmailException, DuplicateUsernameException {
         Utente utente = utenteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("⚠️ Utente non trovato! ⚠️"));
+
+        if (!utente.getEmail().equals(utenteDTO.getEmail())){
+            Optional<Utente> utenteEsistente = utenteRepository.findByEmail(utenteDTO.getEmail());
+            if (utenteEsistente.isPresent()){
+                throw new DuplicateEmailException("⚠️ Email già in uso! ⚠️");
+            }
+        }
+        if (!utente.getUsername().equals(utenteDTO.getUsername())){
+            Optional<Utente> utenteEsist = utenteRepository.findByUsername(utenteDTO.getUsername());
+            if (utenteEsist.isPresent()){
+                throw new DuplicateUsernameException("⚠️ Username già in uso! ⚠️");
+            }
+        }
 
         // Mantieni la vecchia password se non viene modificata
         String oldPassword = utente.getPassword();
@@ -157,15 +173,15 @@ public class UtenteService {
 
 
     /// ////////
-    public UtenteDTO registerUtente(UtenteDTO utenteDTO, MultipartFile file) throws IOException {
+    public UtenteDTO registerUtente(UtenteDTO utenteDTO, MultipartFile file) throws IOException, DuplicateEmailException {
         // Controlla se la email è già in uso
         if (utenteRepository.existsByEmail(utenteDTO.getEmail())) {
-            throw new RuntimeException("⚠️ Email già in uso! ⚠️");
+            throw new DuplicateEmailException("⚠️ Email già in uso! ⚠️");
         }
 
         // Controlla se lo username è già in uso
         if (utenteRepository.existsByUsername(utenteDTO.getUsername())) {
-            throw new RuntimeException("⚠️ Username già in uso! ⚠️");
+            throw new DuplicateEmailException("⚠️ Username già in uso! ⚠️");
         }
 
         // Se non viene fornito un tipo di ruolo, imposta 'USER' come predefinito

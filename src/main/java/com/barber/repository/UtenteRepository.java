@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface UtenteRepository extends JpaRepository<Utente,Long> {
     //recupero utente dall'username
     Optional<Utente> findByUsername(String username);
+    Optional<Utente> findByEmail(String email);
     List<Utente> findAll();
     //chiavi che non devono essere duplicate, quindi ci faccio dei controlli
     boolean existsByUsername(String username);
